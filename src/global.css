@@ -1,0 +1,50 @@
+@import 'tailwindcss';
+
+@font-face {
+  font-family: 'Pokemon';
+  src: url('./assets/Pokemon Solid.ttf') format('truetype');
+}
+
+:root {
+  /*Shadows*/
+  --box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.5);
+  --img-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+@theme {
+  /* Main Colors */
+  --color-pk-red: rgb(238, 21, 21);
+  --color-pk-yellow: rgb(255, 222, 0);
+  --color-pk-blue: rgb(59, 76, 202);
+
+  --color-pk-light: rgb(248, 250, 252, 0.85);
+  --color-pk-dark: rgb(24, 24, 27);
+
+  /* Components */
+  --color-section: var(--color-pk-light);
+  --color-navbar: var(--color-pk-red);
+  --color-input-bg: var(--color-pk-dark);
+  --color-input-txt: var(--color-pk-light);
+  --color-inputIcon: var(--color-pk-dark);
+  --color-card-nameBg: var(--color-pk-dark);
+  --color-card-nameTxt: var(--color-pk-light);
+
+  /*Fonts*/
+  --font-pokemon: 'Pokemon', sans-serif;
+}
+
+.dark {
+  /* Components */
+  --color-section: var(--color-pk-dark);
+  --color-input-bg: var(--color-pk-light);
+  --color-input-txt: var(--color-pk-dark);
+  --color-inputIcon: var(--color-pk-light);
+  --color-card-nameBg: var(--color-pk-light);
+  --color-card-nameTxt: var(--color-pk-dark);
+}
+
+@layer components {
+  .input_reset {
+    @apply focus:outline-none focus:ring-0 focus:border-transparent active:outline-none active:border-transparent;
+  }
+}
