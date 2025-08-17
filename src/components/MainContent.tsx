@@ -8,7 +8,8 @@ interface mainProps {
 }
 
 export default function Main({ motto }: mainProps) {
-  const { setSearch, filteredPokemon, loading, error } = useSearchPokemon();
+  const { setSearch, pokemonFilteredDetails, loading, error } =
+    useSearchPokemon();
   return (
     <main className="max-w-screen-lg mx-auto flex flex-col justify-center items-center px-4 py-6 gap-4">
       <h1 className="font-pokemon tracking-widest text-pk-blue text-2xl">
@@ -34,8 +35,8 @@ export default function Main({ motto }: mainProps) {
           <div className="text-red-500">{error}</div>
         ) : (
           <div className="w-screen-lg justify-center flex flex-wrap gap-16">
-            {filteredPokemon && filteredPokemon.length > 0 ? (
-              filteredPokemon.map((d: any) => (
+            {pokemonFilteredDetails && pokemonFilteredDetails.length > 0 ? (
+              pokemonFilteredDetails.map((d: any) => (
                 <PokemonCard key={d.name} data={d} />
               ))
             ) : (

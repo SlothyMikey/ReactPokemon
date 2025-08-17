@@ -2,7 +2,7 @@ import type { PokemonData } from '@/helper/pokemonTypes.ts';
 import type { PokemonBasic } from '@/helper/pokemonTypes.ts';
 import type { PokemonListResponse } from '@/helper/pokemonTypes.ts';
 
-export const fetchPokemonList = async (limit = 1000) => {
+export const fetchPokemonList = async (limit = 500) => {
   const res = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=${limit}`);
   if (!res.ok) {
     throw new Error('Fetching Failed: ' + res.status);
