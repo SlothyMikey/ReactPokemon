@@ -1,51 +1,67 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { PokemonData } from '@/helper/pokemonTypes';
 import type { PokemonBasic } from '@/helper/pokemonTypes';
 import { fetchAllPokemonDetails, fetchPokemonList } from '@/api/pokemon';
+import useDebounceSearch from '@/hooks/useDebounceSearch';
 
 export default function useSearchPokemon() {
   const [pokemonList, setPokemonList] = useState<PokemonBasic[]>([]);
-  const [pokemonDetails, setPokemonDetails] = useState<PokemonData[]>([]);
+  const [pokemonFilteredDetails, setPokemonFilteredDetails] = useState<
+    PokemonData[]
+  >([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const debounceSearch = useDebounceSearch(search);
+
   useEffect(() => {
+    let isMounted = true;
     setLoading(true);
     (async () => {
       try {
         const result = await fetchPokemonList();
-        setPokemonList(result);
+        if (isMounted) setPokemonList(result);
       } catch (e: any) {
-        setError(e.message);
+        if (isMounted) setError(e.message);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     })();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
+  const searchTerm = debounceSearch.toLowerCase();
+
+  const filteredPokemon = useMemo(() => {
+    return debounceSearch
+      ? pokemonList.filter((p) => p.name.toLowerCase().includes(searchTerm))
+      : pokemonList;
+  }, [pokemonList, debounceSearch]);
+
   useEffect(() => {
-    if (!pokemonList.length) return;
+    if (!filteredPokemon.length) return;
+
+    let isMounted = true;
     setLoading(true);
 
     (async () => {
       try {
-        const details = await fetchAllPokemonDetails(pokemonList);
+        const details = await fetchAllPokemonDetails(filteredPokemon);
 
-        setPokemonDetails(details);
+        if (isMounted) setPokemonFilteredDetails(details);
       } catch (e: any) {
-        setError(e.message);
+        if (isMounted) setError(e.message);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     })();
-  }, [pokemonList]);
+    return () => {
+      isMounted = false;
+    };
+  }, [filteredPokemon]);
 
-  const searchTerm = search.toLowerCase();
-
-  const filteredPokemon = search
-    ? pokemonDetails.filter((p) => p.name.toLowerCase().includes(searchTerm))
-    : pokemonDetails;
-
-  return { setSearch, filteredPokemon, loading, error };
+  return { setSearch, pokemonFilteredDetails, loading, error };
 }
