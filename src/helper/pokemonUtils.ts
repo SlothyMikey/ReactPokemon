@@ -1,4 +1,4 @@
-import type { PokemonData } from '@/helper/pokemonTypes';
+import type { PokemonData, PokemonListResponse } from '@/helper/pokemonTypes';
 
 export const getPokemonImages = (pokemon: PokemonData) => {
   return (
@@ -12,6 +12,7 @@ export const getPokemonTypes = (pokemon: PokemonData): string[] => {
 };
 
 export const capitalizeFirstLetter = (str: string): string => {
+  if (!str) return '';
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
 

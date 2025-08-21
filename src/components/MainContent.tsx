@@ -8,8 +8,7 @@ interface mainProps {
 }
 
 export default function Main({ motto }: mainProps) {
-  const { setSearch, pokemonFilteredDetails, loading, error } =
-    useSearchPokemon();
+  const { search, setSearch, pokemonData, loading, error } = useSearchPokemon();
   return (
     <main className="max-w-screen-lg mx-auto flex flex-col justify-center items-center px-4 py-6 gap-4">
       <h1 className="font-pokemon tracking-widest text-pk-blue text-2xl">
@@ -25,6 +24,7 @@ export default function Main({ motto }: mainProps) {
           type="text"
           className="bg-input-bg text-input-txt font-bold rounded-e-md p-2 box-border w-xs input_reset"
           onChange={(e) => setSearch(e.target.value)}
+          value={search}
           placeholder="Search pokemon name"
         />
       </div>
@@ -35,10 +35,8 @@ export default function Main({ motto }: mainProps) {
           <div className="text-red-500">{error}</div>
         ) : (
           <div className="w-screen-lg justify-center flex flex-wrap gap-16">
-            {pokemonFilteredDetails && pokemonFilteredDetails.length > 0 ? (
-              pokemonFilteredDetails.map((d: any) => (
-                <PokemonCard key={d.name} data={d} />
-              ))
+            {pokemonData ? (
+              pokemonData.map((d) => <PokemonCard key={d.name} data={d} />)
             ) : (
               <div>Unknown Pokemon</div>
             )}
