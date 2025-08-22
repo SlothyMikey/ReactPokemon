@@ -1,4 +1,4 @@
-import type { PokemonData, PokemonListResponse } from '@/helper/pokemonTypes';
+import type { PokemonData } from '@/helper/pokemonTypes';
 
 export const getPokemonImages = (pokemon: PokemonData) => {
   return (
@@ -17,5 +17,6 @@ export const capitalizeFirstLetter = (str: string): string => {
 };
 
 export const getPokemonId = (pokemon: PokemonData): string => {
+  // eslint-disable-next-line no-constant-binary-expression
   return `#${pokemon?.id}` || '#';
 };

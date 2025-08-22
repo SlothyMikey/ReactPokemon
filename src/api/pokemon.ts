@@ -2,20 +2,22 @@ import type { PokemonData } from '@/helper/pokemonTypes.ts';
 import type { PokemonBasic } from '@/helper/pokemonTypes.ts';
 import type { PokemonListResponse } from '@/helper/pokemonTypes.ts';
 
-export const fetchPokemonList = async (url: string) => {
+export const fetchPokemonList = async (url: string | null) => {
+  if (!url) return;
   const res = await fetch(url);
   if (!res.ok) {
     throw new Error('Fetching Failed: ' + res.status);
   }
   const data: PokemonListResponse = await res.json();
-  return data.results;
+  return data;
 };
 
 export const fetchPokemonDetails = async (
   url: string,
-): Promise<PokemonData> => {
+): Promise<PokemonData | null> => {
   const res = await fetch(url);
   if (!res.ok) {
+    if (res.status === 404) return null;
     throw new Error('Fetching Failed: ' + res.status);
   }
   return await res.json();
