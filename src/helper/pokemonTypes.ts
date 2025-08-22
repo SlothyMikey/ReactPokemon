@@ -18,8 +18,13 @@ export type PokemonData = {
       name: string;
     };
   }>;
+  species: {
+    name: string;
+    url: string;
+  };
 };
 
 export type PokemonListResponse = {
+  next: string;
   results: PokemonBasic[];
 };

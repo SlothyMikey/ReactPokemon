@@ -1,5 +1,5 @@
 import '@/global.css';
-import useSearchPokemon from '@/hooks/useSearchPokemon';
+import useSearchPokemon from '@/hooks/useFetchPokemon';
 import Loader from '@/components/Loader.tsx';
 import PokemonCard from '@/feature/PokemonCard';
 
@@ -8,7 +8,8 @@ interface mainProps {
 }
 
 export default function Main({ motto }: mainProps) {
-  const { search, setSearch, pokemonData, loading, error } = useSearchPokemon();
+  const { search, setSearch, pokemonData, loading, error, loadMore } =
+    useSearchPokemon();
   return (
     <main className="max-w-screen-lg mx-auto flex flex-col justify-center items-center px-4 py-6 gap-4">
       <h1 className="font-pokemon tracking-widest text-pk-blue text-2xl">
@@ -34,9 +35,23 @@ export default function Main({ motto }: mainProps) {
         ) : error ? (
           <div className="text-red-500">{error}</div>
         ) : (
-          <div className="w-screen-lg justify-center flex flex-wrap gap-16">
-            {pokemonData ? (
-              pokemonData.map((d) => <PokemonCard key={d.name} data={d} />)
+          <div className="w-screen-lg justify-center flex flex-col gap-8">
+            {pokemonData && pokemonData.length > 0 ? (
+              <>
+                <div className="justify-center flex flex-wrap gap-16">
+                  {pokemonData.map((d) => (
+                    <PokemonCard key={d.id} data={d} />
+                  ))}
+                </div>
+                {pokemonData.length !== 1 && (
+                  <button
+                    className=" p-4 w-xs rounded bg-pk-red text-pk-light justify-center font-bold self-center transition-transform hover:cursor-pointer hover:scale-105"
+                    onClick={loadMore}
+                  >
+                    Load More
+                  </button>
+                )}
+              </>
             ) : (
               <div>Unknown Pokemon</div>
             )}

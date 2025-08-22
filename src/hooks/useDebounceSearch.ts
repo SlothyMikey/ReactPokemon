@@ -1,7 +1,7 @@
 //Helps to delay fetching
 import { useState, useEffect } from 'react';
 
-export default function useDebounceSearch(searchTerm: string, delay = 300) {
+export default function useDebounceSearch(searchTerm: string, delay = 1000) {
   const [debouncedValue, setDebouncedValue] = useState(searchTerm);
 
   useEffect(() => {
@@ -10,6 +10,6 @@ export default function useDebounceSearch(searchTerm: string, delay = 300) {
     }, delay);
 
     return () => clearTimeout(timeout);
-  }, [searchTerm]);
+  }, [searchTerm, delay]);
   return debouncedValue;
 }

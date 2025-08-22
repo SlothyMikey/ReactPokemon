@@ -47,7 +47,9 @@ export default function PokemonCard({ data }: PokemonCardProps) {
         />
         <div className="mt-auto w-full bg-card-nameBg rounded-b-md">
           <p className="text-card-nameTxt text-center py-2 font-bold ">
-            {capitalizeFirstLetter(data?.name) || 'Pokemon Name'}
+            {capitalizeFirstLetter(
+              data.name.includes('-') ? data.species.name : data.name,
+            ) || 'Pokemon Name'}
           </p>
         </div>
       </article>
