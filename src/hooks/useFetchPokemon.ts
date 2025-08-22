@@ -10,12 +10,14 @@ export default function useSearchPokemon() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pageUrl, setPageUrl] = useState<string | null>(
-    'https://pokeapi.co/api/v2/pokemon/?offset=0&limit=20',
+    'https://pokeapi.co/api/v2/pokemon/?offset=0&limit=21',
   );
 
   const searchTerm = useDebounceSearch(search);
 
   const loadMore = async () => {
+    if (!pageUrl || loading) return; // Prevent multiple simultaneous requests
+
     setLoading(true);
     try {
       const result = await fetchPokemonList(pageUrl);
@@ -25,6 +27,7 @@ export default function useSearchPokemon() {
       const validDetails = details.filter(
         (item): item is PokemonData => item !== null,
       );
+
       setPokemonData((prev) => {
         const existingIds = new Set(prev.map((p) => p.id));
         const uniqueNewDetails = validDetails.filter(
@@ -32,30 +35,58 @@ export default function useSearchPokemon() {
         );
         return [...prev, ...uniqueNewDetails];
       });
+
       setPokemonList((prev) => {
         const existingNames = new Set(prev.map((p) => p.name));
         const uniqueNewList = newList.filter((p) => !existingNames.has(p.name));
         return [...prev, ...uniqueNewList];
       });
-    } catch {
-      // Handle Error here
+    } catch (err) {
+      console.error('Error loading more Pokemon:', err);
     } finally {
       setLoading(false);
     }
   };
 
+  // Initial load effect
   useEffect(() => {
-    loadMore();
-    return () => {};
+    const initialLoad = async () => {
+      setLoading(true);
+      try {
+        const result = await fetchPokemonList(
+          'https://pokeapi.co/api/v2/pokemon/?offset=0&limit=21',
+        );
+        setPageUrl(result?.next ?? null);
+        const newList = result?.results ?? [];
+        const details = await fetchAllPokemonDetails(newList);
+        const validDetails = details.filter(
+          (item): item is PokemonData => item !== null,
+        );
+        setPokemonData(validDetails);
+        setPokemonList(newList);
+      } catch {
+        //
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initialLoad();
   }, []);
 
+  // Search effect - only runs when searchTerm changes
   useEffect(() => {
     let isMounted = true;
     setLoading(true);
+    setError(null);
 
     const fetchData = async () => {
       try {
-        if (search) {
+        if (searchTerm) {
+          // Clear existing data when searching
+          setPokemonData([]);
+          setPokemonList([]);
+
           const url = `https://pokeapi.co/api/v2/pokemon/${searchTerm.toLowerCase()}/`;
           try {
             const result = await fetchAllPokemonDetails(url);
@@ -64,8 +95,9 @@ export default function useSearchPokemon() {
             );
             if (isMounted) setPokemonData(validResults);
           } catch {
+            // If direct search fails, try filtering from existing list
             const filtered = pokemonList.filter((p) =>
-              p.name.toLowerCase().includes(search.toLowerCase()),
+              p.name.toLowerCase().includes(searchTerm.toLowerCase()),
             );
             if (filtered.length > 0) {
               const result = await fetchAllPokemonDetails(filtered);
@@ -78,7 +110,25 @@ export default function useSearchPokemon() {
             }
           }
         } else {
-          //
+          // When search is cleared, reset to initial state and reload
+          setPokemonData([]);
+          setPokemonList([]);
+          setPageUrl('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=21');
+
+          // Load initial data
+          const result = await fetchPokemonList(
+            'https://pokeapi.co/api/v2/pokemon/?offset=0&limit=21',
+          );
+          setPageUrl(result?.next ?? null);
+          const newList = result?.results ?? [];
+          const details = await fetchAllPokemonDetails(newList);
+          const validDetails = details.filter(
+            (item): item is PokemonData => item !== null,
+          );
+          if (isMounted) {
+            setPokemonData(validDetails);
+            setPokemonList(newList);
+          }
         }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (e: any) {
@@ -92,7 +142,15 @@ export default function useSearchPokemon() {
     return () => {
       isMounted = false;
     };
-  }, [searchTerm, pokemonList]);
+  }, [searchTerm]);
 
-  return { search, setSearch, pokemonData, loading, error, loadMore };
+  return {
+    search,
+    setSearch,
+    pokemonData,
+    loading,
+    error,
+    loadMore,
+    hasMore: !!pageUrl,
+  };
 }
